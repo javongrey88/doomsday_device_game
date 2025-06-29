@@ -1,9 +1,8 @@
 from colorama import Fore, Style, init
-
-# Required on Windows to enable ANSI codes
-init(autoreset=True)
-
 import random
+
+# Initialize colorama for colored output (cross-platform)
+init(autoreset=True)
 
 # List of all 50 US states
 us_states = [
@@ -19,17 +18,17 @@ us_states = [
     "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
 ]
 
-# Create a dictionary to store the state and its status (default is not destroyed)
+# Track the status of each state (spared or destroyed)
 state_grid = {state: " " for state in us_states}
 
+# Store decision history
 history_log = []
 
-# Function to print the grid in a readable format
+# Display grid with colored markers for state status
 def print_grid(grid):
     print("\n--- Current State Grid ---")
     count = 0
     for state, status in grid.items():
-        # Color code based on status
         if status == "X":
             display = Fore.RED + "X" + Style.RESET_ALL
         else:
@@ -41,28 +40,41 @@ def print_grid(grid):
             print()
     print("\n")
 
+# Display progress bar based on number of destroyed states
+def print_progress_bar(destroyed, total=50, bar_length=30):
+    percent = destroyed / total
+    filled_length = int(bar_length * percent)
 
-print(print_grid(state_grid))
-# Main loop
-turn = 1  # Optional: Keep track of how many decisions made
+    # Red bar for destroyed, unfilled is plain
+    bar = Fore.RED + "█" * filled_length + Style.RESET_ALL + "█" * (bar_length - filled_length)
 
+    print(f"\nProgress: |{bar}| {destroyed}/{total} states destroyed\n")
+
+
+
+# Print initial grid
+print_grid(state_grid)
+
+# Track turns for history log
+turn = 1
+
+# Main game loop
 while True:
-    # Get a list of remaining states that haven't been destroyed yet
+    # Get list of states that haven’t been judged
     remaining_states = [state for state, status in state_grid.items() if status == " "]
-    
-    # Break loop if all states have been processed
+
     if not remaining_states:
         print("All states have been judged. The doomsday device rests... for now.")
         break
 
-    # Pick a random state to judge
+    # Randomly select one remaining state
     selected_state = random.choice(remaining_states)
-    
-    # Ask the user for input
+
+    # Prompt user for decision
     user_input = input(f"Do you wish to DESTROY {selected_state}? (y = destroy, n = spare, q = quit): ").lower()
-    
+
     if user_input == 'y':
-        state_grid[selected_state] = "X"  # Mark as destroyed
+        state_grid[selected_state] = "X"
         entry = f"{turn}. {selected_state} - DESTROYED"
         history_log.append(entry)
         print(f"{entry}\n")
@@ -80,14 +92,20 @@ while True:
 
     else:
         print("Invalid input. Please enter 'y', 'n', or 'q'.")
-        continue  # Skip printing grid if invalid input
+        continue  # Retry without printing grid
 
-    # Show current grid after each decision
+    # Display updated grid
     print_grid(state_grid)
+    
 
 
-# After game ends, print decision history
+    # Show updated progress
+    destroyed_count = sum(1 for status in state_grid.values() if status == "X")
+    print_progress_bar(destroyed_count)
+
+# Print decision history after the loop ends
 print("\n--- HISTORY LOG ---")
 for entry in history_log:
     print(entry)
-print("\nTotal Judgments:", len(history_log))
+print(f"\nTotal Judgments: {len(history_log)}")
+
