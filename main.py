@@ -22,6 +22,8 @@ us_states = [
 # Create a dictionary to store the state and its status (default is not destroyed)
 state_grid = {state: " " for state in us_states}
 
+history_log = []
+
 # Function to print the grid in a readable format
 def print_grid(grid):
     print("\n--- Current State Grid ---")
@@ -39,14 +41,11 @@ def print_grid(grid):
             print()
     print("\n")
 
-state_grid = {state: " " for state in us_states}
-state_grid["Texas"] = "X"
-state_grid["California"] = "X"
 
-print_grid(state_grid)
-
-
+print(print_grid(state_grid))
 # Main loop
+turn = 1  # Optional: Keep track of how many decisions made
+
 while True:
     # Get a list of remaining states that haven't been destroyed yet
     remaining_states = [state for state, status in state_grid.items() if status == " "]
@@ -64,15 +63,31 @@ while True:
     
     if user_input == 'y':
         state_grid[selected_state] = "X"  # Mark as destroyed
-        print(f"{selected_state} has been DESTROYED!\n")
+        entry = f"{turn}. {selected_state} - DESTROYED"
+        history_log.append(entry)
+        print(f"{entry}\n")
+        turn += 1
+
     elif user_input == 'n':
-        print(f"{selected_state} has been spared... for now.\n")
+        entry = f"{turn}. {selected_state} - SPARED"
+        history_log.append(entry)
+        print(f"{entry}\n")
+        turn += 1
+
     elif user_input == 'q':
         print("Doomsday device shutting down early. The world breathes easy... for now.")
         break
+
     else:
         print("Invalid input. Please enter 'y', 'n', or 'q'.")
         continue  # Skip printing grid if invalid input
 
     # Show current grid after each decision
     print_grid(state_grid)
+
+
+# After game ends, print decision history
+print("\n--- HISTORY LOG ---")
+for entry in history_log:
+    print(entry)
+print("\nTotal Judgments:", len(history_log))
